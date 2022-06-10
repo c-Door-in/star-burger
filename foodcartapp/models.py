@@ -1,5 +1,9 @@
+from textwrap import dedent
+
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -97,7 +101,7 @@ class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
         related_name='menu_items',
-        verbose_name="ресторан",
+        verbose_name='ресторан',
         on_delete=models.CASCADE,
     )
     product = models.ForeignKey(
@@ -120,4 +124,62 @@ class RestaurantMenuItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
+        return f'{self.restaurant.name} - {self.product.name}'
+
+
+class Order(models.Model):
+    firstname = models.CharField(
+        'имя',
+        max_length=50
+    )
+    lastname = models.CharField(
+        'фамилия',
+        max_length=50,
+        blank=True,
+    )
+    phonenumber = PhoneNumberField(
+        'номер телефона',
+        db_index=True,
+    )
+    address = models.CharField(
+        'адрес',
+        max_length=150,
+        blank=True,
+    )
+    created_at = models.DateTimeField(
+        'создан',
+        default=timezone.now,
+        db_index=True,
+    )
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
+    def __str__(self):
+        return f'Заказ №{self.id}'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        related_name='items',
+        verbose_name='заказ',
+        on_delete=models.CASCADE,
+    )
+    product = models.ForeignKey(
+        Product,
+        related_name='order_items',
+        verbose_name='продукт',
+        on_delete=models.CASCADE,
+    )
+    quantity = models.IntegerField(
+        'количество',
+        validators=[MinValueValidator(1)],
+    )
+
+    class Meta:
+        verbose_name = 'состав заказа'
+        verbose_name_plural = 'составы заказа'
+
+    def __str__(self):
+        return f'{self.order.firstname} - {self.order.phonenumber}'
