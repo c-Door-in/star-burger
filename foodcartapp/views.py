@@ -1,7 +1,7 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
+from phonenumbers import is_valid_number_for_region, parse
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -61,10 +61,48 @@ def product_list_api(request):
     })
 
 
+def get_order_error_content(received_order):
+    order_keys = [
+        'products',
+        'firstname',
+        'lastname',
+        'phonenumber',
+        'address',
+    ]
+    for order_key in order_keys:
+        if not order_key in received_order:
+            return {order_key: 'Обязательное поле.'}
+        if received_order[order_key] is None:
+            return {order_key: 'Это поле не может быть пустым.'}
+        if received_order[order_key] == '':
+            return {order_key: 'Это поле не может быть пустым.'}
+    
+    if isinstance(received_order['products'], str):
+        return {'products': 'Ожидался list со значениями, но был получен str.'}
+    
+    string_order_keys = ['firstname', 'lastname', 'phonenumber', 'address']
+    for order_key in string_order_keys:
+        if not isinstance(received_order[order_key], str):
+            return {order_key: 'Not a valid string.'}
+
+    if received_order['products'] == []:
+        return {'products': 'Этот список не может быть пустым.'}
+    
+    if not is_valid_number_for_region(parse(received_order['phonenumber'], 'RU'), 'RU'):
+        return {'phonenumber': 'Введен некорректный номер телефона.'}
+
+    for position in received_order['products']:
+        if not Product.objects.filter(id=position['product']):
+            return {'product': 'Недопустимый первичный ключ "{}"'.format(position['product'])}
+
+
 @api_view(['POST'])
 def register_order(request):
     received_order = request.data
     print(received_order)
+    order_error_content = get_order_error_content(received_order)
+    if order_error_content:
+        return Response(order_error_content, status=status.HTTP_406_NOT_ACCEPTABLE)
     order = Order.objects.create(
         firstname=received_order['firstname'],
         lastname=received_order['lastname'],
@@ -78,4 +116,5 @@ def register_order(request):
             product=product,
             quantity=position['quantity'],
         )
+    
     return Response()
