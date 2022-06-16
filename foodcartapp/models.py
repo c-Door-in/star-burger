@@ -134,8 +134,7 @@ class Order(models.Model):
     )
     lastname = models.CharField(
         'фамилия',
-        max_length=50,
-        blank=True,
+        max_length=50
     )
     phonenumber = PhoneNumberField(
         'номер телефона',
@@ -143,8 +142,7 @@ class Order(models.Model):
     )
     address = models.CharField(
         'адрес',
-        max_length=150,
-        blank=True,
+        max_length=150
     )
     created_at = models.DateTimeField(
         'создан',
@@ -162,7 +160,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
-        related_name='items',
+        related_name='order_items',
         verbose_name='заказ',
         on_delete=models.CASCADE,
     )
