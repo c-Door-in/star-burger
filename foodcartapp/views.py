@@ -69,11 +69,11 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
+    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
-        fields = ['products', 'firstname', 'lastname', 'phonenumber', 'address']
+        fields = ['id', 'products', 'firstname', 'lastname', 'phonenumber', 'address']
 
 
 @api_view(['POST'])
@@ -94,5 +94,7 @@ def register_order(request):
             product=position['product'],
             quantity=position['quantity'],
         )
-    
-    return Response({'order_id': order.id})
+
+    serializer = OrderSerializer(order)
+
+    return Response(serializer.data)
