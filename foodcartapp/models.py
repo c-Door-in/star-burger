@@ -1,6 +1,5 @@
-from textwrap import dedent
-
 from django.db import models
+from django.db.models import F, Sum
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
@@ -127,6 +126,15 @@ class RestaurantMenuItem(models.Model):
         return f'{self.restaurant.name} - {self.product.name}'
 
 
+class OrderQuerySet(models.QuerySet):
+
+    def orders_with_cost(self):
+        orders_items_costs = self.annotate(
+            cost=Sum(F('order_items__product__price')*F('order_items__quantity'))
+        )
+        return orders_items_costs
+
+
 class Order(models.Model):
     firstname = models.CharField(
         'имя',
@@ -149,6 +157,9 @@ class Order(models.Model):
         default=timezone.now,
         db_index=True,
     )
+
+    objects = OrderQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
@@ -180,4 +191,4 @@ class OrderItem(models.Model):
         verbose_name_plural = 'составы заказа'
 
     def __str__(self):
-        return f'{self.order.firstname} - {self.order.phonenumber}'
+        return f'{self.product.name} - {self.quantity}'
