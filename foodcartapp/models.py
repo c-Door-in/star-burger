@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 from django.db.models import F, Sum
 from django.core.validators import MinValueValidator
@@ -128,11 +129,11 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
 
-    def orders_with_cost(self):
-        orders_items_costs = self.annotate(
-            cost=Sum(F('order_items__product__price')*F('order_items__quantity'))
+    def order_with_cost(self):
+        order_items_costs = self.annotate(
+            cost=Sum(F('order_items__cost'))
         )
-        return orders_items_costs
+        return order_items_costs
 
 
 class Order(models.Model):
@@ -184,6 +185,13 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(
         'количество',
         validators=[MinValueValidator(1)],
+    )
+    cost = models.DecimalField(
+        'стоимость',
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        default=0.00,
     )
 
     class Meta:
