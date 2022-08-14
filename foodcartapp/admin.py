@@ -125,7 +125,9 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'phonenumber',
         'address',
+        'status',
     ]
+    order_by = ('id',)
     readonly_fields = ['created_at']
     inlines = [
         OrderItemInline,

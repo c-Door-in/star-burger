@@ -132,7 +132,7 @@ class OrderQuerySet(models.QuerySet):
     def order_with_cost(self):
         order_items_costs = self.annotate(
             cost=Sum(F('order_items__cost'))
-        )
+        ).order_by('id')
         return order_items_costs
 
 
@@ -156,6 +156,18 @@ class Order(models.Model):
     created_at = models.DateTimeField(
         'создан',
         default=timezone.now,
+        db_index=True,
+    )
+    STATUSES = (
+        ('0', 'Необработанный'),
+        ('1', 'Собирается'),
+        ('2', 'Доставляется'),
+        ('3', 'Выполнен')
+    )
+    status = models.CharField(
+        max_length=1,
+        choices=STATUSES,
+        default='0',
         db_index=True,
     )
 
