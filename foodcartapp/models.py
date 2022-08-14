@@ -153,6 +153,17 @@ class Order(models.Model):
         'адрес',
         max_length=150
     )
+    PAY_METHODS = (
+        ('elec', 'Электронно'),
+        ('cash', 'Наличные'),
+    )
+    pay_method = models.CharField(
+        max_length=4,
+        choices=PAY_METHODS,
+        default='cash',
+        db_index=True,
+        verbose_name='Способ оплаты',
+    )
     created_at = models.DateTimeField(
         'создан',
         default=timezone.now,
