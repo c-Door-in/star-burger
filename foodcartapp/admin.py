@@ -125,6 +125,7 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'phonenumber',
         'address',
+        'comment',
         'status',
     ]
     order_by = ('id',)
