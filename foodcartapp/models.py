@@ -158,6 +158,18 @@ class Order(models.Model):
         default=timezone.now,
         db_index=True,
     )
+    called_at = models.DateTimeField(
+        'позвонили',
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+    delivered_at = models.DateTimeField(
+        'доставлено',
+        blank=True,
+        null=True,
+        db_index=True,
+    )
     STATUSES = (
         ('0', 'Необработанный'),
         ('1', 'Собирается'),
