@@ -169,6 +169,7 @@ class Order(models.Model):
         choices=STATUSES,
         default='0',
         db_index=True,
+        verbose_name='Статус',
     )
 
     objects = OrderQuerySet.as_manager()
