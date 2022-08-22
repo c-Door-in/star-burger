@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.db.models import Count
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem, OrderItem
 
 
 class Login(forms.Form):
@@ -95,8 +96,48 @@ def view_restaurants(request):
     })
 
 
+def get_restaurant_details(order, menu_items):
+    if order.restaurant:
+        return (f'Готовит {order.restaurant.name}', None)
+
+    order_products = (order.order_items.all().values_list('product'))
+    order_restaurants = (
+        menu_items
+        .filter(product__in=order_products)
+        .values('restaurant')
+        .annotate(products_count=Count('product'))
+        .filter(products_count=order_products.count())
+        .values_list('restaurant')
+    )
+    if order_restaurants:
+        return (
+            'Может быть приготовлен ресторанами:',
+            Restaurant.objects.filter(pk__in=order_restaurants),
+        )
+
+    return ('Ошибка определения координат', None)
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    orders = (
+        Order.objects
+        .select_related('restaurant')
+        .prefetch_related('order_items')
+        .order_with_cost()
+        .exclude(status='3')
+        .order_by('restaurant', 'created_at')
+    )
+    menu_items = RestaurantMenuItem.objects.select_related('restaurant')\
+                                           .select_related('product')
+
+    orders_with_restaurants = []
+    for order in orders:
+        summary, restaurants = get_restaurant_details(order, menu_items)
+        orders_with_restaurants.append(
+            (order, summary, restaurants)
+        )
+    print(orders_with_restaurants)
     return render(request, template_name='order_items.html', context={
-        'orders': Order.objects.order_with_cost().exclude(status='3'),
+        'orders_with_restaurants': orders_with_restaurants,
     })
