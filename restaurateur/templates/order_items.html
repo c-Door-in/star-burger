@@ -25,7 +25,7 @@
       <th>Ссылка на админку</th>
     </tr>
 
-    {% for order, restaurants_summary, restaurants in orders_with_restaurants %}
+    {% for order, restaurants_summary, available_restaurants in orders_with_restaurants %}
       <tr>
         <td>{{ order.id }}</td>
         <td>{{ order.get_status_display }}</td>
@@ -40,11 +40,11 @@
             <summary>
               <p>{{ restaurants_summary }}</p>
             </summary>
-            <ul>
-              {% for restaurant in restaurants %}
-                <li>{{ restaurant }}</li>
+              {% for restaurant_info in available_restaurants %}
+                {% for restaurant, distance in restaurant_info.items %}
+                  <li>{{ restaurant.name }} - {{ distance }} км</li>
+                {% endfor %}
               {% endfor %}
-            </ul>
           </details>
         </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.get_full_path|urlencode }}">Редактировать</a></td>

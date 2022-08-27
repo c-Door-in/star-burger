@@ -1,15 +1,22 @@
+import requests
+
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
+from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.db.models import Count
 
+from geopy import distance
+
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem, OrderItem
+from geocodeapp.models import Place
 
 
 class Login(forms.Form):
@@ -96,7 +103,43 @@ def view_restaurants(request):
     })
 
 
-def get_restaurant_details(order, menu_items):
+def fetch_coordinates(address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": settings.YANDEX_GEO_APIKEY,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
+
+
+def get_place_coordinates(places, address):
+    place = [place for place in places if place.address == address]
+    if not place:
+        coords = fetch_coordinates(address)
+        if not coords:
+            return None
+        lat, lon = coords
+        place = Place.objects.create(
+            address=address,
+            lat=lat,
+            lon=lon,
+            request_date=timezone.now(),
+        )
+    else:
+        place = place[0]
+    return place.lat, place.lon
+
+
+def get_restaurants_details(order, menu_items, restaurants, places):
     if order.restaurant:
         return (f'Готовит {order.restaurant.name}', None)
 
@@ -107,15 +150,28 @@ def get_restaurant_details(order, menu_items):
         .values('restaurant')
         .annotate(products_count=Count('product'))
         .filter(products_count=order_products.count())
-        .values_list('restaurant')
+        .values('restaurant')
     )
-    if order_restaurants:
-        return (
-            'Может быть приготовлен ресторанами:',
-            Restaurant.objects.filter(pk__in=order_restaurants),
-        )
 
-    return ('Ошибка определения координат', None)
+    if order_restaurants:
+        order_coords = get_place_coordinates(places, order.address)
+        # print(order_coords)
+        if not order_coords:
+            return ('Ошибка определения координат', None)
+
+        available_restaurants = []
+        for restaurant in restaurants:
+            if {'restaurant': restaurant.pk} in order_restaurants:
+                restaurant_coords = get_place_coordinates(places, restaurant.address)
+                if not restaurant_coords:
+                    return ('Ошибка определения координат', None)
+                order_distance = '{:.2f}'.format(
+                    distance.distance(order_coords, restaurant_coords).km
+                )
+                available_restaurants.append({restaurant: order_distance})
+        return ('Может быть приготовлен ресторанами:', available_restaurants)
+
+    return ('Нет ресторана со всеми позициями', None)
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -130,13 +186,18 @@ def view_orders(request):
     )
     menu_items = RestaurantMenuItem.objects.select_related('restaurant')\
                                            .select_related('product')
+    restaurants = list(Restaurant.objects.all())
+    places = list(Place.objects.all())
 
     orders_with_restaurants = []
     for order in orders:
-        summary, restaurants = get_restaurant_details(order, menu_items)
-        orders_with_restaurants.append(
-            (order, summary, restaurants)
+        summary, available_restaurants = get_restaurants_details(
+            order,
+            menu_items,
+            restaurants,
+            places,
         )
+        orders_with_restaurants.append((order, summary, available_restaurants))
     print(orders_with_restaurants)
     return render(request, template_name='order_items.html', context={
         'orders_with_restaurants': orders_with_restaurants,
