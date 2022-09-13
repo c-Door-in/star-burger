@@ -145,6 +145,16 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    PAY_METHODS = (
+        ('elec', 'Электронно'),
+        ('cash', 'Наличные'),
+    )
+    STATUSES = (
+        ('0', 'Необработанный'),
+        ('1', 'Собирается'),
+        ('2', 'Доставляется'),
+        ('3', 'Выполнен')
+    )
     firstname = models.CharField(
         'имя',
         max_length=50
@@ -160,10 +170,6 @@ class Order(models.Model):
     address = models.CharField(
         'адрес',
         max_length=150
-    )
-    PAY_METHODS = (
-        ('elec', 'Электронно'),
-        ('cash', 'Наличные'),
     )
     pay_method = models.CharField(
         max_length=4,
@@ -188,12 +194,6 @@ class Order(models.Model):
         blank=True,
         null=True,
         db_index=True,
-    )
-    STATUSES = (
-        ('0', 'Необработанный'),
-        ('1', 'Собирается'),
-        ('2', 'Доставляется'),
-        ('3', 'Выполнен')
     )
     status = models.CharField(
         max_length=1,
