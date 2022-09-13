@@ -204,7 +204,6 @@ class Order(models.Model):
     )
     comment = models.TextField(
         verbose_name='Комментарий',
-        max_length=500,
         blank=True,
     )
     selected_restaurant = models.ForeignKey(
