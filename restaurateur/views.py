@@ -143,7 +143,7 @@ def get_restaurants_details(order, menu_items, restaurants, places):
     if order.restaurant:
         return (f'Готовит {order.restaurant.name}', None)
 
-    order_products = (order.order_items.all().values_list('product'))
+    order_products = (order.items.all().values_list('product'))
     order_restaurants = (
         menu_items
         .filter(product__in=order_products)
@@ -179,7 +179,7 @@ def view_orders(request):
     orders = (
         Order.objects
         .select_related('restaurant')
-        .prefetch_related('order_items')
+        .prefetch_related('items')
         .order_with_cost()
         .exclude(status='3')
         .order_by('restaurant', 'created_at')
