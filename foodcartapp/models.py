@@ -207,7 +207,7 @@ class Order(models.Model):
         max_length=500,
         blank=True,
     )
-    restaurant = models.ForeignKey(
+    selected_restaurant = models.ForeignKey(
         Restaurant,
         null=True,
         blank=True,

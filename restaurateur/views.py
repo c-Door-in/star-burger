@@ -141,7 +141,7 @@ def get_place_coordinates(places, address):
 
 def get_restaurants_details(order, menu_items, restaurants, places):
     if order.restaurant:
-        return (f'Готовит {order.restaurant.name}', None)
+        return (f'Готовит {order.selected_restaurant.name}', None)
 
     order_products = (order.items.all().values_list('product'))
     order_restaurants = (
