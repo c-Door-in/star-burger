@@ -155,7 +155,6 @@ def get_restaurants_details(order, menu_items, restaurants, places):
 
     if order_restaurants:
         order_coords = get_place_coordinates(places, order.address)
-        # print(order_coords)
         if not order_coords:
             return ('Ошибка определения координат', None)
 
@@ -198,7 +197,6 @@ def view_orders(request):
             places,
         )
         orders_with_restaurants.append((order, summary, available_restaurants))
-    print(orders_with_restaurants)
     return render(request, template_name='order_items.html', context={
         'orders_with_restaurants': orders_with_restaurants,
     })
