@@ -137,8 +137,7 @@ class OrderAdmin(admin.ModelAdmin):
     ]
 
     def response_change(self, request, obj):
-        res = super(OrderAdmin, self).response_change(request, obj)
         if "next" in request.GET and url_has_allowed_host_and_scheme(request.GET['next'], None):
             return HttpResponseRedirect(request.GET['next'])
         else:
-            return res
+            return super().response_change()
