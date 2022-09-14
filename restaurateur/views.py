@@ -140,7 +140,7 @@ def get_place_coordinates(places, address):
 
 
 def get_restaurants_details(order, menu_items, restaurants, places):
-    if order.restaurant:
+    if order.selected_restaurant:
         return (f'Готовит {order.selected_restaurant.name}', None)
 
     order_products = (order.items.all().values_list('product'))
@@ -178,11 +178,11 @@ def get_restaurants_details(order, menu_items, restaurants, places):
 def view_orders(request):
     orders = (
         Order.objects
-        .select_related('restaurant')
+        .select_related('selected_restaurant')
         .prefetch_related('items')
         .order_with_cost()
         .exclude(status='3')
-        .order_by('restaurant', 'created_at')
+        .order_by('selected_restaurant', 'created_at')
     )
     menu_items = RestaurantMenuItem.objects.select_related('restaurant')\
                                            .select_related('product')
