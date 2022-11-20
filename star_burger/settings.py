@@ -3,16 +3,18 @@ import os
 import dj_database_url
 
 from environs import Env
+from git import Repo
 
 
 env = Env()
 env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-
 SECRET_KEY = env('SECRET_KEY')
+
 DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
@@ -41,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -104,6 +107,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+local_repo = Repo(path=BASE_DIR)
+local_branch = local_repo.active_branch.name
+rollbar_environment = env.str(f'ROLLBAR_ENVIRONMENT', 'undefined')
+
+ROLLBAR = {
+    'access_token': env.str('DJANGO_ROLLBAR_TOKEN', None),
+    'environment': f"{rollbar_environment}-{local_branch}",
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
+
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
@@ -119,7 +133,6 @@ STATIC_URL = '/static/'
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
-
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
