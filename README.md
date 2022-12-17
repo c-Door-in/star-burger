@@ -84,7 +84,14 @@ DJANGO_ROLLBAR_TOKEN='your_rollbar_token'
 ROLLBAR_ENVIRONMENT=development
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Создайте базу данных Postgres. Создайте пользователя и присвойте ему все права доступа к созданной 
+базе. В файле переменных окружения `.env` укажите URL доступа к базе по шаблону 
+`postgres://имя_пользователя:пароль@localhost:5432/название_базы_данных`
+```sh
+POSTGRES_URL='postgres://user:password@localhost:5432/star_burger'
+```
+
+Отмигрируйте созданную базу данных следующей командой:
 
 ```sh
 python manage.py migrate
