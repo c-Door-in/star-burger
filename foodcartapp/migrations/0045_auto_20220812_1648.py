@@ -5,9 +5,9 @@ from django.db import migrations
 
 def define_old_orders_cost(app, schema_editor):
     OrderItem = app.get_model('foodcartapp', 'OrderItem')
-    OrderItem.objects\
-             .filter(cost=0.00)\
-             .update(cost='product__price'*'quantity')
+    # OrderItem.objects\
+    #          .filter(cost=0.00)\
+    #          .update(cost='product__price'*'quantity')
 
 
 class Migration(migrations.Migration):

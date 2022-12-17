@@ -86,11 +86,13 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+#     )
+# }
+
+DATABASES = {'default': env.dj_db_url("POSTGRES_URL")}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,11 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 local_repo = Repo(path=BASE_DIR)
 local_branch = local_repo.active_branch.name
-rollbar_environment = env.str(f'ROLLBAR_ENVIRONMENT', 'undefined')
 
 ROLLBAR = {
     'access_token': env.str('DJANGO_ROLLBAR_TOKEN', None),
-    'environment': f"{rollbar_environment}-{local_branch}",
+    'environment': env.str(f'ROLLBAR_ENVIRONMENT', 'undefined'),
+    'branch': local_branch,
     'code_version': '1.0',
     'root': BASE_DIR,
 }
