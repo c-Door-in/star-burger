@@ -84,8 +84,15 @@ DJANGO_ROLLBAR_TOKEN='your_rollbar_token'
 ROLLBAR_ENVIRONMENT=development
 ```
 
-Создайте базу данных Postgres. Создайте пользователя и присвойте ему все права доступа к созданной 
-базе. В файле переменных окружения `.env` укажите URL доступа к базе по шаблону 
+Создайте базу данных Postgres. Создайте пользователя, примените настройки и присвойте ему 
+все права доступа к созданной базе.
+```
+ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
+ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE myprojectuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
+```
+В файле переменных окружения `.env` укажите URL доступа к базе по шаблону 
 `postgres://имя_пользователя:пароль@localhost:5432/название_базы_данных`
 ```sh
 POSTGRES_URL='postgres://user:password@localhost:5432/star_burger'
