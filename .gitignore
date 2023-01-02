@@ -142,6 +142,3 @@ dmypy.json
 cython_debug/
 
 .parcel-cache/
-
-# node.js
-package-lock.json
