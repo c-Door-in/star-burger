@@ -1,0 +1,8 @@
+*.log
+/env
+/venv
+/__pycache__
+db.*
+.parcel-cashe
+node_modules
+npm-debug.log

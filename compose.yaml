@@ -1,0 +1,45 @@
+services:
+  nodejs_frontend:
+    build:
+      context: ./
+      dockerfile: nodejs.Dockerfile
+    command: ./node_modules/.bin/parcel watch django_backend/bundles-src/index.js --dist-dir django_backend/bundles --public-url="./"
+    volumes:
+      - ./:/usr/src/app/
+    env_file: .env
+    depends_on:
+      - db
+      - django_backend
+    restart: on-failure
+    ports:
+      - 8765:8765
+
+  django_backend:
+    build:
+      context: ./
+      dockerfile: django.Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/usr/src/app/
+    env_file: .env
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 8000:8000
+
+  db:
+    image: postgres:15-bookworm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+    - 5432:5432
+  
+volumes:
+  postgres_data:
+  
