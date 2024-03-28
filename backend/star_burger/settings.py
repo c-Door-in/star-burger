@@ -11,6 +11,8 @@ env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SECRET_KEY = env('SECRET_KEY')
@@ -87,18 +89,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'star_burger',
-        'USER': 'egor',
-        'PASSWORD': 'strong_password',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'star_burger',
+#         'USER': 'egor',
+#         'PASSWORD': 'strong_password',
+#         'HOST': 'db',
+#         'PORT': '5432',
+#     }
+# }
 
-# DATABASES = {'default': env.dj_db_url("POSTGRES_URL")}
+DATABASES = {'default': env.dj_db_url("POSTGRES_URL")}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -115,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-local_repo = Repo(path=BASE_DIR)
+local_repo = Repo(path=env.str('GIT_REPO_PATH', os.path.join(BASE_DIR, "..")))
 local_branch = local_repo.active_branch.name
 
 ROLLBAR = {
@@ -143,8 +145,8 @@ INTERNAL_IPS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets"),
-    os.path.join(BASE_DIR, "bundles"),
+    os.path.join(PROJECT_DIR, "frontend", "static", "assets"),
+    os.path.join(PROJECT_DIR, "frontend", "static", "bundles"),
 ]
 
 PHONENUMBER_DB_FORMAT = "NATIONAL"
