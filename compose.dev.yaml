@@ -18,7 +18,7 @@ services:
       sh -c "python3 manage.py migrate --noinput && 
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - static:/frontend/static
+      - static:/app/static
       - ./.git:/app/.git
     env_file: .docker.env
     depends_on:

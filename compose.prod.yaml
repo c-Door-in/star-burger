@@ -1,0 +1,48 @@
+services:
+  frontend:
+    build:
+      frontend
+    container_name: frontend
+    command: ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./static/bundles --public-url="./"
+    volumes:
+      - static:/app/static
+    env_file: .docker.env
+    ports:
+      - 8765:8765
+
+  django_backend:
+    build:
+      backend
+    container_name: backend
+    command: >
+      sh -c "python3 manage.py migrate --noinput && 
+             python manage.py collectstatic"
+    volumes:
+      - static:/app/static
+      - ./.git:/app/.git
+    env_file: .docker.env
+    depends_on:
+      - frontend
+      - db
+    restart: always
+    ports:
+      - 8000:8000
+
+  db:
+    image: postgres:15-bookworm
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .docker.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+    ports:
+    - 5433:5432
+  
+volumes:
+  static:
+  postgres_data:
+  
