@@ -16,14 +16,18 @@ services:
     container_name: backend
     command: >
       sh -c "python3 manage.py migrate --noinput && 
-             python manage.py collectstatic"
+             python3 manage.py collectstatic && 
+             gunicorn -w 3 -b 127.0.0.1:8000 star_burger.wsgi:application"
     volumes:
       - static:/app/static
+      - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
       - ./.git:/app/.git
     env_file: .docker.env
     depends_on:
-      - frontend
+      - frontend:
+        condition: service_completed_successfully
       - db
+      
     restart: always
     ports:
       - 8000:8000
