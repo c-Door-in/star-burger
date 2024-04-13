@@ -8,3 +8,5 @@ RUN apt-get update \
 COPY . .
 
 RUN npm install --include=dev && npm cache clean --force
+
+RUN mkdir /app/static

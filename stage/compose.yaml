@@ -1,0 +1,52 @@
+services:
+  frontend:
+    build:
+      ../frontend
+    container_name: star-burger-frontend
+    command: >
+      sh -c "mv ./static/assets/* ./staticfiles/ -fv &&
+             ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./staticfiles --public-url='./'"
+    volumes:
+      - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
+    env_file: .env
+    ports:
+      - 8765:8765
+
+  django_backend:
+    build:
+      ../backend
+    container_name: star-burger-backend
+    command: >
+      sh -c "python3 manage.py migrate --noinput && 
+             python3 manage.py collectstatic --noinput && 
+             gunicorn -w 3 -b 0.0.0.0:8080 star_burger.wsgi:application"
+    volumes:
+      - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
+      - ./.git:/app/.git
+    env_file: .env
+    depends_on:
+      frontend:
+        condition: service_completed_successfully
+      db:
+      
+    restart: always
+    ports:
+      - 8080:8080
+
+  db:
+    image: postgres:15-bookworm
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+    ports:
+    - 5433:5432
+  
+volumes:
+  postgres_data:
+  

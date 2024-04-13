@@ -10,3 +10,6 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
+
+RUN mkdir /app/static
+RUN mkdir /app/staticdiles

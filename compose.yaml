@@ -3,10 +3,12 @@ services:
     build:
       frontend
     container_name: frontend
-    command: ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./static/bundles --public-url="./"
+    command: >
+      sh -c "mv ./assets/* ./static/ -fv &&
+             ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./static --public-url='./'"
     volumes:
       - static:/app/static
-    env_file: .docker.env
+    env_file: .env
     ports:
       - 8765:8765
 
@@ -16,28 +18,24 @@ services:
     container_name: backend
     command: >
       sh -c "python3 manage.py migrate --noinput && 
-             python3 manage.py collectstatic && 
-             gunicorn -w 3 -b 127.0.0.1:8000 star_burger.wsgi:application"
+             python manage.py runserver 0.0.0.0:8080"
     volumes:
       - static:/app/static
-      - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
       - ./.git:/app/.git
-    env_file: .docker.env
+    env_file: .env
     depends_on:
-      - frontend:
-        condition: service_completed_successfully
+      - frontend
       - db
-      
     restart: always
     ports:
-      - 8000:8000
+      - 8080:8080
 
   db:
     image: postgres:15-bookworm
     container_name: db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file: .docker.env
+    env_file: .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}

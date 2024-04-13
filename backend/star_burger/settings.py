@@ -145,8 +145,7 @@ INTERNAL_IPS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static", "assets"),
-    os.path.join(BASE_DIR, "static", "bundles"),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 PHONENUMBER_DB_FORMAT = "NATIONAL"
