@@ -1,0 +1,17 @@
+server {
+
+    listen 80 default;
+    server_name localhost;
+    location / {
+        include '/etc/nginx/proxy_params';
+        proxy_pass http://127.0.0.1:8080/;
+    }
+
+    location /media/ {
+        alias /var/www/docker-star-burger-site/media/;
+    }
+
+    location /static/ {
+        alias /var/www/docker-star-burger-site/staticfiles/;
+    }
+}
