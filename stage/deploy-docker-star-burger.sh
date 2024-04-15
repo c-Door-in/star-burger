@@ -10,7 +10,7 @@ cd ../
 
 cd stage
 
-sudo docker compose up --build 
+sudo docker compose up -d --build
 
 sudo systemctl reload nginx.service
 
