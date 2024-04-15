@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-local_repo = Repo(path=env.str('GIT_REPO_PATH', os.path.join(BASE_DIR, "..")))
+local_repo = Repo(path=env.str('GIT_REPO_PATH', PROJECT_DIR))
 local_branch = local_repo.active_branch.name
 
 ROLLBAR = {
