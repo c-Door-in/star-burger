@@ -4,7 +4,7 @@ services:
       ../frontend
     container_name: star-burger-frontend
     command: >
-      sh -c "mv ./static/assets/* ./staticfiles/ -fv &&
+      sh -c "mv ./assets/* ./staticfiles/ -fv &&
              ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./staticfiles --public-url='./'"
     volumes:
       - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
@@ -22,12 +22,11 @@ services:
              gunicorn -w 3 -b 0.0.0.0:8080 star_burger.wsgi:application"
     volumes:
       - /var/www/docker-star-burger-site/staticfiles:/app/staticfiles
-      - ./.git:/app/.git
+      - ../.git:/app/.git
     env_file: .env
     depends_on:
-      frontend:
-        condition: service_completed_successfully
-      db:
+      - frontend
+      - db
       
     restart: always
     ports:
@@ -39,10 +38,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file: .env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     restart: always
     ports:
     - 5433:5432
