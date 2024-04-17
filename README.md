@@ -199,6 +199,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `POSTGRES_DB` - название базы данных
 - `POSTGRES_USER` - имя пользователя
 - `POSTGRES_PASSWORD` - пароль
+- `GIT_REPO_PATH` - путь местонахождения репозитория .git
 
 
 ## Запуск из Docker
