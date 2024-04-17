@@ -88,7 +88,18 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {'default': env.dj_db_url("POSTGRES_URL")}
+# DATABASES = {'default': env.dj_db_url("POSTGRES_URL")}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST', 'db'),
+        'PORT': env.str('POSTGRES_PORT', '5432'),
+    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -133,11 +144,11 @@ INTERNAL_IPS = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
-PHONENUMBER_DB_FORMAT = "NATIONAL"
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
 
-PHONENUMBER_DEFAULT_REGION = "RU"
+PHONENUMBER_DEFAULT_REGION = 'RU'
 
 YANDEX_GEO_APIKEY = env('YANDEX_GEO_APIKEY')
