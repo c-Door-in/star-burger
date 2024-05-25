@@ -4,6 +4,7 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y libpq-dev gcc git \
+    && apt install netcat-traditional \
     && apt-get clean
 
 COPY ./requirements.txt .
@@ -13,7 +14,5 @@ COPY . .
 
 RUN mkdir /app/static
 RUN mkdir /app/staticfiles
-RUN python3 manage.py migrate --noinput
-RUN python3 manage.py collectstatic --noinput
 
-CMD gunicorn -w 3 -b 0.0.0.0:8080 star_burger.wsgi:application
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

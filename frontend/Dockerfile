@@ -10,6 +10,8 @@ COPY . .
 RUN npm install --include=dev && npm cache clean --force
 
 RUN mkdir /app/static
+RUN mkdir /app/staticfiles
+
 RUN mv ./assets/* ./staticfiles/ -fv
 
-CMD ./node_modules/.bin/parcel build ./bundles-src/index.js --dist-dir ./staticfiles --public-url='./'
+CMD ["./node_modules/.bin/parcel", "build", "./bundles-src/index.js", "--dist-dir", "./staticfiles", "--public-url='./'"]

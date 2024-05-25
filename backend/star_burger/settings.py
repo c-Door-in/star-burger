@@ -116,13 +116,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-local_repo = Repo(path=env.str('GIT_REPO_PATH', PROJECT_DIR))
-local_branch = local_repo.active_branch.name
+# local_repo = Repo(path=env.str('GIT_REPO_PATH', PROJECT_DIR))
+# local_branch = local_repo.active_branch.name
 
 ROLLBAR = {
     'access_token': env.str('DJANGO_ROLLBAR_TOKEN', None),
     'environment': env.str(f'ROLLBAR_ENVIRONMENT', 'undefined'),
-    'branch': local_branch,
+    # 'branch': local_branch,
     'code_version': '1.0',
     'root': BASE_DIR,
 }
